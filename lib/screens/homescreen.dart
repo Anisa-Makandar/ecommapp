@@ -6,132 +6,135 @@ import 'package:flutter/material.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustumCircleActar(
-                    icon: Icons.more_horiz,
-                    size: 60.0,
-                  ),
-                  CustumCircleActar(
-                    icon: Icons.notifications_none_outlined,
-                    size: 60.0,
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.search,
-                      size: 16,
-                    ), // Search icon
-                    hintText: 'Search...',
-                    hintStyle: TextStyle(fontSize: 14), // Placeholder text
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor:
-                        Color(0xFFF5F5F5), // Background color of the search bar
-                  ),
-                ),
-              ),
-              getSaleContainer(),
-              SizedBox(
-                height: 20,
-              ),
-              SizedBox(
-                height: 90,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: AppConstants.colorData.length,
-                  itemBuilder: (_, index) {
-                    var colorItem = AppConstants.colorData[index];
-                    return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 27,
-                              backgroundImage: AssetImage(colorItem['image']),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              colorItem['productname'], // Product name
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black), // Text style
-                              textAlign:
-                                  TextAlign.center, // Align text to the center
-                            ),
-                          ],
-                        ));
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              //2
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Special For You',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    CustumCircleActar(
+                      icon: Icons.more_horiz,
+                      size: 60.0,
                     ),
-                    Text(
-                      'Sell all',
-                      style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          fontSize: 12,
-                          color: Colors.grey),
+                    CustumCircleActar(
+                      icon: Icons.notifications_none_outlined,
+                      size: 60.0,
                     ),
                   ],
                 ),
-              ),
-              SizedBox(
-                height: 7,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: AppConstants.getSpecialforyoucard.length,
-                  itemBuilder: (_, index) {
-                    final cardData = AppConstants.getSpecialforyoucard[index];
-                    return InkWell(
-                      child: getCategoriesWidget(
-                        cardData['imgUrl'], // Use the correct key for image URL
-                        cardData[
-                            'prodname'], // Use the correct key for product name
-                        cardData['price'], // Pass the price
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.search,
+                        size: 16,
+                      ), // Search icon
+                      hintText: 'Search...',
+                      hintStyle: TextStyle(fontSize: 14), // Placeholder text
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide.none,
                       ),
-                    );
-                  },
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 11,
-                    crossAxisSpacing: 11,
-                    childAspectRatio: 1.5 / 2,
+                      filled: true,
+                      fillColor: Color(
+                          0xFFF5F5F5), // Background color of the search bar
+                    ),
                   ),
                 ),
-              ),
-            ],
+                getSaleContainer(),
+                SizedBox(
+                  height: 20,
+                ),
+                SizedBox(
+                  height: 90,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: AppConstants.colorData.length,
+                    itemBuilder: (_, index) {
+                      var colorItem = AppConstants.prodData[index];
+                      return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 27,
+                                backgroundImage: AssetImage(colorItem['image']),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                colorItem['productname'], // Product name
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black), // Text style
+                                textAlign: TextAlign
+                                    .center, // Align text to the center
+                              ),
+                            ],
+                          ));
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                //2
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Special For You',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      Text(
+                        'Sell all',
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 12,
+                            color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 7,
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: AppConstants.getSpecialforyoucard.length,
+                    itemBuilder: (_, index) {
+                      final cardData = AppConstants.getSpecialforyoucard[index];
+                      return InkWell(
+                        child: getCategoriesWidget(
+                          cardData[
+                              'imgUrl'], // Use the correct key for image URL
+                          cardData[
+                              'prodname'], // Use the correct key for product name
+                          cardData['price'], // Pass the price
+                        ),
+                      );
+                    },
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 11,
+                      crossAxisSpacing: 11,
+                      childAspectRatio: 1.5 / 2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

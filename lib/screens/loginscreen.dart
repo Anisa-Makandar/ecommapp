@@ -1,5 +1,8 @@
 import 'package:ecommapp/domain/custom_button.dart';
 import 'package:ecommapp/domain/custome_textfield.dart';
+import 'package:ecommapp/screens/bottomnavigation.dart';
+import 'package:ecommapp/screens/registerscreen.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -91,8 +94,12 @@ class LoginPage extends StatelessWidget {
                     ),
                     CustomButton(
                       text: 'Sign In',
-                      onPressed: () {
-                        print('Login button pressed');
+                      onPressed: () async {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NavifationPage()),
+                        );
                       },
                     ),
                     Padding(
@@ -111,6 +118,15 @@ class LoginPage extends StatelessWidget {
                                   fontWeight: FontWeight.w400,
                                   color: Color(0xFFFF660E),
                                 ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              Registerscreen()),
+                                    );
+                                  },
                               ),
                             ]),
                       ),

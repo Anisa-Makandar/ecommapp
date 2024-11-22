@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:ecommapp/domain/apiexceptions.dart';
+import 'apiexceptions.dart';
 import 'package:http/http.dart' as httpClient;
 
 class ApiHelper {
