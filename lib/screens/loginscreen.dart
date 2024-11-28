@@ -1,7 +1,7 @@
 import 'package:ecommapp/domain/custom_button.dart';
 import 'package:ecommapp/domain/custome_textfield.dart';
 import 'package:ecommapp/screens/bottomnavigation.dart';
-import 'package:ecommapp/screens/registerscreen.dart';
+import 'package:ecommapp/screens/register/registerscreen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';

@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'package:ecommapp/screens/homescreen.dart';
 import 'package:ecommapp/screens/loginscreen.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreenPage extends StatefulWidget {
   @override

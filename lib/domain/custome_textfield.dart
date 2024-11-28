@@ -12,6 +12,7 @@ class CustomeTextfield extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
         hintText: hintText,

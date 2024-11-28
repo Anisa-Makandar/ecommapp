@@ -1,16 +1,32 @@
 import 'package:ecommapp/domain/custom_button.dart';
 import 'package:ecommapp/domain/custome_textfield.dart';
 import 'package:ecommapp/screens/loginscreen.dart';
+import 'package:ecommapp/screens/register/bloc/register_user_bloc.dart';
+import 'package:ecommapp/screens/register/bloc/register_user_event.dart';
+import 'package:ecommapp/screens/register/bloc/register_user_state.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class Registerscreen extends StatelessWidget {
+class Registerscreen extends StatefulWidget {
+  @override
+  State<Registerscreen> createState() => _RegisterscreenState();
+}
+
+class _RegisterscreenState extends State<Registerscreen> {
   final TextEditingController firstnameController = TextEditingController();
+
   final TextEditingController lastnameController = TextEditingController();
+
   final TextEditingController phoneController = TextEditingController();
+
   final TextEditingController emailController = TextEditingController();
+
   final TextEditingController passController = TextEditingController();
+
   final TextEditingController confirmpassController = TextEditingController();
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +76,13 @@ class Registerscreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     CustomeTextfield(
-                      controller: emailController,
+                      controller: lastnameController,
                       label: 'Last Name',
                       hintText: 'Enter last name here...',
                     ),
                     const SizedBox(height: 20),
                     CustomeTextfield(
-                      controller: emailController,
+                      controller: phoneController,
                       label: 'Phone Number',
                       hintText: 'Enter phone number here...',
                     ),
@@ -92,14 +108,57 @@ class Registerscreen extends StatelessWidget {
                     SizedBox(
                       height: 30,
                     ),
-                    CustomButton(
-                      text: 'Sign Up',
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
+                    BlocListener<RegisterUserBloc, RegisterUserState>(
+                      listener: (context, state) {
+                        if (state is RegisterUserLoadingState) {
+                          isLoading = true;
+                          setState(() {});
+                        }
+                        if (state is RegisterUserSuccessState) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("User Registerd Successfully...")));
+                        }
+                        if (state is RegisterUserFailureState) {
+                          isLoading = false;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("${state.errorMsg}")));
+                          setState(() {});
+                        }
                       },
+                      child: CustomButton(
+                        text: 'Sign Up',
+                        isLoading: isLoading,
+                        onPressed: () {
+                          if (firstnameController.text.isNotEmpty &&
+                              lastnameController.text.isNotEmpty &&
+                              emailController.text.isNotEmpty &&
+                              phoneController.text.isNotEmpty &&
+                              passController.text.isNotEmpty &&
+                              confirmpassController.text.isNotEmpty) {
+                            if (passController.text ==
+                                confirmpassController.text) {
+                              context
+                                  .read<RegisterUserBloc>()
+                                  .add(CreateUserEvent(
+                                    name:
+                                        "${firstnameController.text} ${lastnameController.text}",
+                                    email: emailController.text,
+                                    mobNo: phoneController.text,
+                                    pass: passController.text,
+                                  ));
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text("Password doesn't match")));
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(
+                                    "Please fill all the required blanks !!!")));
+                          }
+                        },
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(15),

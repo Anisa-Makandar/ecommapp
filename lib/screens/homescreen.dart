@@ -1,6 +1,7 @@
 import 'package:ecommapp/domain/constants.dart';
 import 'package:ecommapp/domain/custom_button.dart';
 import 'package:ecommapp/domain/custom_circleavtar.dart';
+import 'package:ecommapp/screens/detailscreen.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -116,6 +117,13 @@ class HomePage extends StatelessWidget {
                     itemBuilder: (_, index) {
                       final cardData = AppConstants.getSpecialforyoucard[index];
                       return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailPage(),
+                              ));
+                        },
                         child: getCategoriesWidget(
                           cardData[
                               'imgUrl'], // Use the correct key for image URL

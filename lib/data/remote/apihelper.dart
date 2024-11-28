@@ -18,6 +18,30 @@ class ApiHelper {
     }
   }
 
+  // post api
+  Future<dynamic> postAPI({
+    required String url,
+    bool isHeaderRequired = true,
+    Map<String, dynamic>? mBodyParams,
+  }) async {
+    var uri = Uri.parse(url);
+
+    try {
+      var res = await httpClient.post(
+        uri,
+        headers: isHeaderRequired
+            ? {
+                "Authorization": " Bearer token",
+              }
+            : {},
+        body: mBodyParams != null ? jsonEncode(mBodyParams) : null,
+      );
+      return returnJsonResponse(res);
+    } on SocketException catch (e) {
+      throw (FetchDataExceptions(errorMsg: "No Internet!!"));
+    }
+  }
+
   dynamic returnJsonResponse(httpClient.Response response) {
     switch (response.statusCode) {
       case 200:

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
+  bool isLoading;
   final VoidCallback onPressed;
   final double width;
   final double height;
@@ -9,10 +10,11 @@ class CustomButton extends StatelessWidget {
   final BorderRadiusGeometry borderRadius;
   final TextStyle textStyle;
 
-  const CustomButton({
+  CustomButton({
     Key? key,
     required this.text,
     required this.onPressed,
+    this.isLoading = false,
     this.width = 400,
     this.height = 50,
     this.color = const Color(0xFFFF660E), // Default to orange
@@ -40,10 +42,21 @@ class CustomButton extends StatelessWidget {
           shadowColor: Colors.transparent,
           padding: EdgeInsets.zero,
         ),
-        child: Text(
-          text,
-          style: textStyle,
-        ),
+        child: isLoading
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(
+                    width: 7,
+                  ),
+                  Text('Registering...'),
+                ],
+              )
+            : Text(
+                text,
+                style: textStyle,
+              ),
       ),
     );
   }

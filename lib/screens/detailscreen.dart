@@ -11,56 +11,56 @@ class DetailPage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xEFF5F5F5),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: CustumCircleActar(
-                        icon: Icons.arrow_back_ios,
-                        backgroundColor: Colors.white,
-                        size: 60.0,
-                      ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: CustumCircleActar(
+                      icon: Icons.arrow_back_ios,
+                      backgroundColor: Colors.white,
+                      size: 60.0,
                     ),
-                    Row(
-                      children: [
-                        CustumCircleActar(
-                          icon: Icons.share,
-                          size: 60.0,
-                          backgroundColor: Colors.white,
-                        ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        CustumCircleActar(
-                          icon: Icons.favorite_border,
-                          size: 60.0,
-                          backgroundColor: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Center(
-                child: Container(
-                  height: 240,
-                  width: 260,
-                  child: Image.asset(
-                    'assets/images/headphone_img.png',
-                    fit: BoxFit.cover,
                   ),
+                  Row(
+                    children: [
+                      CustumCircleActar(
+                        icon: Icons.share,
+                        size: 60.0,
+                        backgroundColor: Colors.white,
+                      ),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      CustumCircleActar(
+                        icon: Icons.favorite_border,
+                        size: 60.0,
+                        backgroundColor: Colors.white,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Center(
+              child: Container(
+                height: 240,
+                width: 260,
+                child: Image.asset(
+                  'assets/images/headphone_img.png',
+                  fit: BoxFit.cover,
                 ),
               ),
-              Container(
+            ),
+            Expanded(
+              child: Container(
                 height: 400,
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -200,8 +200,8 @@ class DetailPage extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
