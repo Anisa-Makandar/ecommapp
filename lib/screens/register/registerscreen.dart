@@ -1,6 +1,6 @@
 import 'package:ecommapp/domain/custom_button.dart';
 import 'package:ecommapp/domain/custome_textfield.dart';
-import 'package:ecommapp/screens/loginscreen.dart';
+import 'package:ecommapp/screens/login/loginscreen.dart';
 import 'package:ecommapp/screens/register/bloc/register_user_bloc.dart';
 import 'package:ecommapp/screens/register/bloc/register_user_event.dart';
 import 'package:ecommapp/screens/register/bloc/register_user_state.dart';

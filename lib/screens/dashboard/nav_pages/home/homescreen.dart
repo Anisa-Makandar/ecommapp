@@ -1,10 +1,37 @@
+import 'package:ecommapp/data/models/product_data_model.dart';
 import 'package:ecommapp/domain/constants.dart';
 import 'package:ecommapp/domain/custom_button.dart';
 import 'package:ecommapp/domain/custom_circleavtar.dart';
-import 'package:ecommapp/screens/detailscreen.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/detail/detailscreen.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/home/product/bloc/product_bloc.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/home/product/bloc/product_event.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/home/product/bloc/product_state.dart';
+import 'package:ecommapp/screens/login/loginscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ProductBloc>().add(GeetAllProductEvent());
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove("token"); // Clear the token
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => LoginPage()), // Navigate to LoginPage
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -43,8 +70,7 @@ class HomePage extends StatelessWidget {
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: Color(
-                          0xFFF5F5F5), // Background color of the search bar
+                      fillColor: Color(0xFFF5F5F5),
                     ),
                   ),
                 ),
@@ -59,25 +85,33 @@ class HomePage extends StatelessWidget {
                     itemCount: AppConstants.colorData.length,
                     itemBuilder: (_, index) {
                       var colorItem = AppConstants.prodData[index];
+                      // Check if dark mode is active
+                      bool isDarkMode =
+                          Theme.of(context).brightness == Brightness.dark;
+
                       return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 27,
-                                backgroundImage: AssetImage(colorItem['image']),
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 27,
+                              backgroundImage: AssetImage(colorItem['image']),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              colorItem['productname'], // Product name
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : Colors.black, // Conditional text color
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                colorItem['productname'], // Product name
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black), // Text style
-                                textAlign: TextAlign
-                                    .center, // Align text to the center
-                              ),
-                            ],
-                          ));
+                              textAlign:
+                                  TextAlign.center, // Align text to the center
+                            ),
+                          ],
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -108,39 +142,57 @@ class HomePage extends StatelessWidget {
                 SizedBox(
                   height: 7,
                 ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: AppConstants.getSpecialforyoucard.length,
-                    itemBuilder: (_, index) {
-                      final cardData = AppConstants.getSpecialforyoucard[index];
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailPage(),
-                              ));
+                BlocBuilder<ProductBloc, ProductState>(builder: (_, state) {
+                  if (state is ProductLoadingState) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state is ProductErrorState) {
+                    return Center(
+                      child: Text(
+                        state.errorMsg,
+                        style: TextStyle(color: Colors.red, fontSize: 16),
+                      ),
+                    );
+                  } else if (state is ProductLoadedState) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: state.mData.data!.length,
+                        itemBuilder: (_, index) {
+                          DataModel cardData = state.mData.data![index];
+                          return InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailPage(
+                                      currentProduct: state.mData.data![index],
+                                    ),
+                                  ));
+                            },
+                            child: getCategoriesWidget(
+                              cardData
+                                  .image!, // Use the correct key for image URL
+                              cardData.name!,
+                              cardData.price!, // Pass the price
+                            ),
+                          );
                         },
-                        child: getCategoriesWidget(
-                          cardData[
-                              'imgUrl'], // Use the correct key for image URL
-                          cardData[
-                              'prodname'], // Use the correct key for product name
-                          cardData['price'], // Pass the price
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 11,
+                          crossAxisSpacing: 11,
+                          childAspectRatio: 1.5 / 2,
                         ),
-                      );
-                    },
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 11,
-                      crossAxisSpacing: 11,
-                      childAspectRatio: 1.5 / 2,
-                    ),
-                  ),
-                ),
+                      ),
+                    );
+                  }
+
+                  return Container();
+                }),
               ],
             ),
           ),
@@ -161,7 +213,7 @@ class HomePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(21),
               color: const Color(0xFFF5F5F5),
               image: DecorationImage(
-                image: AssetImage(imgUrl), // Use AssetImage for local images
+                image: NetworkImage(imgUrl), // Use AssetImage for local images
                 fit: BoxFit.cover,
               ),
             ),

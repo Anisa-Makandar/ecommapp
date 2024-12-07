@@ -1,15 +1,42 @@
-import 'package:ecommapp/domain/constants.dart';
+import 'package:ecommapp/data/models/viewcart_data_model.dart';
 import 'package:ecommapp/domain/custom_button.dart';
-import 'package:ecommapp/domain/custom_circleavtar.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/cart/bloc/fetch_bloc.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/cart/bloc/fetch_event.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/cart/bloc/fetch_state.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/cart/delete_bloc/delete_bloc.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/cart/delete_bloc/delete_event.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/cart/delete_bloc/delete_state.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/createorder/placeorderpage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
   final TextEditingController applyController = TextEditingController();
+  bool isLoading = false;
+  num totalBill = 0.0;
+  num subTotal = 0.0;
+  num totalAfterCGST = 0.0;
+  num totalAfterSGST = 0.0;
+  double cgst = 0.12;
+  double sgst = 0.20;
+  num discountper = 0.20;
+  num totalDiscount = 0.0;
+  @override
+  void initState() {
+    super.initState();
+    context.read<FetchCartBloc>().add(FetchMyCartEvent());
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xEFF5F5F5),
+        // backgroundColor: const Color(0xEFF5F5F5),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -17,11 +44,16 @@ class CartScreen extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CustumCircleActar(
-                    icon: Icons.arrow_back,
-                    backgroundColor: Colors.white,
-                    size: 32,
-                  ),
+                  // GestureDetector(
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //   },
+                  //   child: CustumCircleActar(
+                  //     icon: Icons.arrow_back,
+                  //     backgroundColor: Colors.white,
+                  //     size: 60.0,
+                  //   ),
+                  // ),
                   Expanded(
                     child: Center(
                       child: Text(
@@ -37,24 +69,47 @@ class CartScreen extends StatelessWidget {
                 height: 10,
               ),
               Expanded(
-                // Wrap ListView.builder in Expanded
-                child: ListView.builder(
-                  itemCount: AppConstants.getcartDetails.length,
-                  itemBuilder: (_, index) {
-                    final product = AppConstants.getcartDetails[index];
-                    return getCartItemWidget(
-                      imgUrl: product['imgUrl'],
-                      productName: product['prodname'],
-                      braandName: product['brand'],
-                      price: product['price'],
+                  // Wrap ListView.builder in Expanded
+                  child: BlocBuilder<FetchCartBloc, FetchCartState>(
+                builder: (_, state) {
+                  if (state is FetchCartLoadingState) {
+                    isLoading = true;
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (state is FetchCartErrorState) {
+                    return Center(child: Text(state.errorMsg));
+                  }
+                  if (state is FetchCartLoadedState) {
+                    updateBill(state.mData.data!);
+
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: state.mData.data!.length,
+                            itemBuilder: (_, index) {
+                              CartModel eachItem = state.mData.data![index];
+                              return getCartItemWidget(
+                                imgUrl: eachItem.image!,
+                                productName: eachItem.name!,
+                                braandName: eachItem.product_id!.toString(),
+                                price: eachItem.price!,
+                                quantity: eachItem.quantity!,
+                                // cartId: eachItem.id, // Pass the cartId here
+                              );
+                            },
+                          ),
+                        ),
+                        gettotalContainer(),
+                      ],
                     );
-                  },
-                ),
-              ),
+                  }
+                  return Container();
+                },
+              )),
               SizedBox(
                 height: 20,
               ),
-              gettotalContainer(),
             ],
           ),
         ),
@@ -62,10 +117,26 @@ class CartScreen extends StatelessWidget {
     );
   }
 
+  void updateBill(List<CartModel> cartItem) {
+    subTotal = 0.0;
+    totalBill = 0.0;
+    for (CartModel eachItem in cartItem) {
+      subTotal += (double.parse(eachItem.price!) * eachItem.quantity!);
+    }
+    //discount
+    totalBill = subTotal - subTotal * discountper;
+    totalDiscount = subTotal * discountper;
+    // tax
+    totalAfterCGST = totalBill * cgst;
+    totalBill += totalAfterCGST;
+    totalAfterSGST = totalBill * sgst;
+    totalBill += totalAfterSGST;
+  }
+
   Widget gettotalContainer() {
     return Container(
-      height: 300,
       width: double.infinity,
+      padding: EdgeInsets.only(bottom: 11),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(31),
         color: Colors.white,
@@ -88,7 +159,58 @@ class CartScreen extends StatelessWidget {
                       TextStyle(fontSize: 18, color: const Color(0xFFA0A0A0)),
                 ),
                 Text(
-                  '\$245.00',
+                  '\$${subTotal.toStringAsFixed(2)}',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: const Color(0xFF040D18),
+                      fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Discount(${discountper * 100}%)',
+                  style:
+                      TextStyle(fontSize: 18, color: const Color(0xFFA0A0A0)),
+                ),
+                Text(
+                  '- \$${totalDiscount.toStringAsFixed(2)}',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: const Color(0xFF040D18),
+                      fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Tax(CGST - ${cgst * 100}%)',
+                  style:
+                      TextStyle(fontSize: 18, color: const Color(0xFFA0A0A0)),
+                ),
+                Text(
+                  '+ \$${totalAfterCGST.toStringAsFixed(2)}',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: const Color(0xFF040D18),
+                      fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Tax(SGST - ${sgst * 100}%)',
+                  style:
+                      TextStyle(fontSize: 18, color: const Color(0xFFA0A0A0)),
+                ),
+                Text(
+                  '+ \$${totalAfterSGST.toStringAsFixed(2)}',
                   style: TextStyle(
                       fontSize: 18,
                       color: const Color(0xFF040D18),
@@ -115,7 +237,7 @@ class CartScreen extends StatelessWidget {
                       TextStyle(fontSize: 16, color: const Color(0xFF3A4147)),
                 ),
                 Text(
-                  '\$245.00',
+                  '\$${totalBill}',
                   style: TextStyle(
                       fontSize: 18,
                       color: const Color(0xFF040D18),
@@ -131,7 +253,12 @@ class CartScreen extends StatelessWidget {
                 width: double.infinity,
                 text: 'Checkout',
                 textStyle: TextStyle(fontSize: 20, color: Colors.white),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Placeorderpage()),
+                  );
+                },
               ),
             ),
           ],
@@ -182,6 +309,8 @@ class CartScreen extends StatelessWidget {
     required String productName,
     required String braandName,
     required String price,
+    // required int cartId,
+    required int quantity,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -208,7 +337,11 @@ class CartScreen extends StatelessWidget {
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // context
+                        //     .read<DeleteBloc>()
+                        //     .add(DeleteOrderEvent(cartId: ));
+                      },
                       icon: const Icon(Icons.delete_outline,
                           color: Color(0xFFFB6915)),
                     ),
@@ -228,7 +361,7 @@ class CartScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    getCountWidget(),
+                    getCountWidget(quantity),
                   ],
                 ),
               ],
@@ -240,7 +373,7 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  Widget getCountWidget() {
+  Widget getCountWidget(int quantity) {
     return Padding(
       padding: const EdgeInsets.only(left: 6.0),
       child: Container(
@@ -264,7 +397,7 @@ class CartScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                '1',
+                '$quantity',
                 style: TextStyle(color: Colors.black),
               ),
               Icon(
@@ -288,7 +421,7 @@ class CartScreen extends StatelessWidget {
         color: const Color(0xEFF5F5F5),
       ),
       child: Center(
-        child: Image.asset(
+        child: Image.network(
           imgUrl,
           fit: BoxFit.cover,
         ),

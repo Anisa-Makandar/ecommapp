@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatelessWidget {
   final String text;
   bool isLoading;
+  String loadingMsg;
   final VoidCallback onPressed;
   final double width;
   final double height;
@@ -15,6 +16,7 @@ class CustomButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.isLoading = false,
+    this.loadingMsg = "",
     this.width = 400,
     this.height = 50,
     this.color = const Color(0xFFFF660E), // Default to orange
@@ -50,7 +52,10 @@ class CustomButton extends StatelessWidget {
                   SizedBox(
                     width: 7,
                   ),
-                  Text('Registering...'),
+                  Text(
+                    loadingMsg,
+                    style: TextStyle(fontSize: 12),
+                  ),
                 ],
               )
             : Text(

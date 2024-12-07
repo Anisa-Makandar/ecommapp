@@ -1,16 +1,32 @@
+import 'package:ecommapp/data/models/product_data_model.dart';
 import 'package:ecommapp/domain/constants.dart';
 
 import 'package:ecommapp/domain/custom_button.dart';
 import 'package:ecommapp/domain/custom_circleavtar.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/detail/bloc/cart_bloc.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/detail/bloc/cart_event.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/detail/bloc/cart_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
+  DataModel currentProduct;
+  DetailPage({required this.currentProduct});
+
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  int qty = 1;
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xEFF5F5F5),
+        // backgroundColor: const Color(0xEFF5F5F5),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -24,7 +40,7 @@ class DetailPage extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     child: CustumCircleActar(
-                      icon: Icons.arrow_back_ios,
+                      icon: Icons.arrow_back,
                       backgroundColor: Colors.white,
                       size: 60.0,
                     ),
@@ -52,10 +68,10 @@ class DetailPage extends StatelessWidget {
             Center(
               child: Container(
                 height: 240,
-                width: 260,
-                child: Image.asset(
-                  'assets/images/headphone_img.png',
-                  fit: BoxFit.cover,
+                width: 200,
+                child: Image.network(
+                  widget.currentProduct.image!,
+                  fit: BoxFit.fill,
                 ),
               ),
             ),
@@ -74,12 +90,12 @@ class DetailPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Wireless Headphone',
+                        widget.currentProduct.name!,
                         style: TextStyle(
                             fontSize: 21, fontWeight: FontWeight.w700),
                       ),
                       Text(
-                        '\$520.00', // Display the price
+                        '\$${widget.currentProduct.price!}', // Display the price
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -226,24 +242,38 @@ class DetailPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Center(
-                child: Icon(
-                  Icons.remove,
-                  color: Colors.white,
-                  size: 20,
+                child: IconButton(
+                  onPressed: () {
+                    if (qty > 1) {
+                      qty--;
+                      setState(() {});
+                    }
+                  },
+                  icon: Icon(
+                    Icons.remove,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
               Text(
-                '1',
+                '$qty',
                 style: TextStyle(color: Colors.white),
               ),
-              Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 20,
+              IconButton(
+                onPressed: () {
+                  qty++;
+                  setState(() {});
+                },
+                icon: Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
             ],
           ),
@@ -270,10 +300,35 @@ class DetailPage extends StatelessWidget {
               width: 20,
             ),
             Expanded(
-                child: CustomButton(
-                    text: 'Add to Cart',
-                    textStyle: TextStyle(fontSize: 18, color: Colors.white),
-                    onPressed: () {}))
+                child: BlocListener<CartBloc, CartState>(
+              listener: (context, state) {
+                if (state is CartLoadingState) {
+                  isLoading = true;
+                  setState(() {});
+                }
+                if (state is CartFailureState) {
+                  isLoading = false;
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("${state.errorMsg}")));
+                }
+                if (state is CartSuccessState) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Product added successfully..")));
+                }
+              },
+              child: CustomButton(
+                  text: 'Add to Cart',
+                  isLoading: isLoading,
+                  loadingMsg: "Adding to Cart...",
+                  textStyle: TextStyle(fontSize: 18, color: Colors.white),
+                  onPressed: () {
+                    context.read<CartBloc>().add(AddToCartEvent(
+                        productId: int.parse(widget.currentProduct.id!),
+                        quantity: qty));
+                  }),
+            ))
           ],
         ),
       ),

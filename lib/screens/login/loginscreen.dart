@@ -1,14 +1,27 @@
 import 'package:ecommapp/domain/custom_button.dart';
 import 'package:ecommapp/domain/custome_textfield.dart';
-import 'package:ecommapp/screens/bottomnavigation.dart';
+import 'package:ecommapp/screens/dashboard/bottomnavigation.dart';
+import 'package:ecommapp/screens/login/bloc/login_user_bloc.dart';
+import 'package:ecommapp/screens/login/bloc/login_user_event.dart';
+import 'package:ecommapp/screens/login/bloc/login_user_state.dart';
 import 'package:ecommapp/screens/register/registerscreen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
+
   final TextEditingController passController = TextEditingController();
+
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,15 +105,35 @@ class LoginPage extends StatelessWidget {
                     SizedBox(
                       height: 30,
                     ),
-                    CustomButton(
-                      text: 'Sign In',
-                      onPressed: () async {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => NavifationPage()),
-                        );
+                    BlocListener<LoginUserBloc, LoginUserState>(
+                      listener: (context, state) {
+                        if (state is LoginUserLoadingState) {
+                          isLoading = true;
+                          setState(() {});
+                        }
+                        if (state is LoginUserFailureState) {
+                          isLoading = false;
+                          setState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(state.errorMsg)));
+                        }
+                        if (state is LoginUserSuccessState) {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NavifationPage(),
+                              ));
+                        }
                       },
+                      child: CustomButton(
+                        text: 'Sign In',
+                        isLoading: isLoading,
+                        onPressed: () async {
+                          context.read<LoginUserBloc>().add(AuthenticateUser(
+                              email: emailController.text,
+                              pass: passController.text));
+                        },
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(15),

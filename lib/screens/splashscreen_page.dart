@@ -1,7 +1,9 @@
 import 'dart:async';
 
-import 'package:ecommapp/screens/loginscreen.dart';
+import 'package:ecommapp/screens/dashboard/bottomnavigation.dart';
+import 'package:ecommapp/screens/login/loginscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreenPage extends StatefulWidget {
   @override
@@ -12,11 +14,25 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
   @override
   void initState() {
     super.initState();
+    navigateBasedOnToken();
+  }
+
+  Future<void> navigateBasedOnToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.get("token");
     Timer(Duration(seconds: 4), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
+      if (token != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (_) => NavifationPage()), // Replace with your HomePage
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => LoginPage()),
+        );
+      }
     });
   }
 
@@ -31,10 +47,6 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
               child: Container(
                 width: 300,
                 height: 350,
-                // width:
-                //     isLandscape ? screenWidth * 0.6 : screenWidth * 0.7,
-                // height:
-                //     isLandscape ? screenHeight * 0.6 : screenHeight * 0.5,
                 child: FittedBox(
                   child: Image.asset(
                     'assets/icons/splashscreenicon.png',

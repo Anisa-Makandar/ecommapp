@@ -1,17 +1,26 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'apiexceptions.dart';
 import 'package:http/http.dart' as httpClient;
 
 class ApiHelper {
-  Future<dynamic> getAPI({required String url}) async {
+  Future<dynamic> getAPI(
+      {required String url, bool isHeaderRequired = true}) async {
     var uri = Uri.parse(url);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString("token") ?? "";
 
     try {
-      var res = await httpClient.get(uri, headers: {
-        "Authorization":
-            "Re1GK2UhhUzczdBnamK89fRhnWT7m7jrxvI8Fn7IH4bCx1G8ll0b4R4u",
-      });
+      var res = await httpClient.get(
+        uri,
+        headers: isHeaderRequired
+            ? {
+                "Authorization": " Bearer $token",
+              }
+            : {},
+      );
       return returnJsonResponse(res);
     } on SocketException catch (e) {
       throw (FetchDataExceptions(errorMsg: "No Internet!!"));
@@ -25,13 +34,15 @@ class ApiHelper {
     Map<String, dynamic>? mBodyParams,
   }) async {
     var uri = Uri.parse(url);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString("token") ?? "";
 
     try {
       var res = await httpClient.post(
         uri,
         headers: isHeaderRequired
             ? {
-                "Authorization": " Bearer token",
+                "Authorization": " Bearer $token",
               }
             : {},
         body: mBodyParams != null ? jsonEncode(mBodyParams) : null,

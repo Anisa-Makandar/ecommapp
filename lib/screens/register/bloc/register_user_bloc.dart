@@ -21,9 +21,9 @@ class RegisterUserBloc extends Bloc<RegisterUserEvent, RegisterUserState> {
               "password": event.pass,
             });
         print(res);
-        if (res["stats"] == true) {
+        if (res["status"] == true) {
           emit(RegisterUserSuccessState());
-          print("Status: ${res['stats']}");
+          print("Status: ${res['status']}");
         } else {
           // emit(RegisterUserFailureState(errorMsg: res["message"]));
           emit(RegisterUserFailureState(
