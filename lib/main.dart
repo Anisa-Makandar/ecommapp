@@ -1,6 +1,7 @@
 import 'package:ecommapp/data/remote/apihelper.dart';
 import 'package:ecommapp/domain/thememanage.dart';
 import 'package:ecommapp/screens/dashboard/nav_pages/cart/bloc/fetch_bloc.dart';
+import 'package:ecommapp/screens/dashboard/nav_pages/cart/delete_bloc/delete_bloc.dart';
 import 'package:ecommapp/screens/dashboard/nav_pages/createorder/bloc/create_order_bloc.dart';
 import 'package:ecommapp/screens/dashboard/nav_pages/detail/bloc/cart_bloc.dart';
 import 'package:ecommapp/screens/dashboard/nav_pages/getorder/bloc/get_order_bloc.dart';
@@ -23,6 +24,7 @@ void main() {
     BlocProvider(create: (context) => CreateOrder(apiHelper: ApiHelper())),
     BlocProvider(create: (context) => GetAllOrderBloc(apiHelper: ApiHelper())),
     BlocProvider(create: (context) => UserProfileBloc(apiHelper: ApiHelper())),
+    BlocProvider(create: (context) => DeleteBloc(apiHelper: ApiHelper())),
     ChangeNotifierProvider(create: (_) => Theme_manager()),
   ], child: MyApp()));
 }

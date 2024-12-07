@@ -95,7 +95,7 @@ class _CartScreenState extends State<CartScreen> {
                                 braandName: eachItem.product_id!.toString(),
                                 price: eachItem.price!,
                                 quantity: eachItem.quantity!,
-                                // cartId: eachItem.id, // Pass the cartId here
+                                cartId: eachItem.id!,
                               );
                             },
                           ),
@@ -309,7 +309,7 @@ class _CartScreenState extends State<CartScreen> {
     required String productName,
     required String braandName,
     required String price,
-    // required int cartId,
+    required int cartId,
     required int quantity,
   }) {
     return Container(
@@ -336,14 +336,26 @@ class _CartScreenState extends State<CartScreen> {
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        // context
-                        //     .read<DeleteBloc>()
-                        //     .add(DeleteOrderEvent(cartId: ));
+                    BlocListener<DeleteBloc, DeleteState>(
+                      listener: (context, state) {
+                        if (state is DeleteOrderSuccessState) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Item Deleted Successfully")));
+                        } else if (state is DeleteOrderFailureState) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(state.errorMsg)));
+                        }
                       },
-                      icon: const Icon(Icons.delete_outline,
-                          color: Color(0xFFFB6915)),
+                      child: IconButton(
+                        onPressed: () {
+                          context
+                              .read<DeleteBloc>()
+                              .add(DeleteOrderEvent(cartId: cartId));
+                        },
+                        icon: const Icon(Icons.delete_outline,
+                            color: Color(0xFFFB6915)),
+                      ),
                     ),
                   ],
                 ),
